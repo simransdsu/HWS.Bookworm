@@ -8,9 +8,37 @@
 import SwiftUI
 
 struct ContentView: View {
+    
+    @FetchRequest(sortDescriptors: []) var students: FetchedResults<Student>
+    @Environment(\.managedObjectContext) var moc
+    
+    @State var name: String = ""
+    
     var body: some View {
-        Text("Hello, world!")
-            .padding()
+        NavigationView {
+            VStack {
+                HStack {
+                    TextField("Name", text: $name)
+                        .textFieldStyle(.roundedBorder)
+                    Button("Add") {
+                        let student = Student(context: moc)
+                        student.id = UUID()
+                        student.name = name
+                        try? moc.save()
+                        name = ""
+                    }.disabled(name.isEmpty)
+                }
+                .padding()
+                
+                List(students) { student in
+                    Text(student.name ?? "Unknown")
+                }
+                
+                
+            }
+            
+            .navigationTitle("Students")
+        }
     }
 }
 
